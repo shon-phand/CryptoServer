@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,9 +14,13 @@ func GetCurrency() gin.HandlerFunc {
 
 		curr := c.Param("symbol")
 
-		result := services.CurrencyService.GetCurrency(curr)
+		result, err := services.CurrencyService.GetCurrency(curr)
 
-		c.JSON(http.StatusNotImplemented, "implement me")
+		if err != nil {
+			c.JSON(err.Status, err)
+		}
+		fmt.Println("res in controller", result)
+		c.JSON(http.StatusOK, result)
 
 	}
 }
@@ -23,8 +28,11 @@ func GetCurrency() gin.HandlerFunc {
 func GetAllCurrency() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-
-		c.JSON(http.StatusNotImplemented, "implement me")
+		res, err := services.CurrencyService.GetAllCurrency()
+		if err != nil {
+			c.JSON(err.Status, err)
+		}
+		c.JSON(http.StatusOK, res)
 
 	}
 }

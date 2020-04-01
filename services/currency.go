@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/shon-phand/CryptoServer/domain"
 	"github.com/shon-phand/CryptoServer/utils/errors"
 )
@@ -18,10 +20,12 @@ type currencyServiceInterface interface {
 
 func (cs *currencyService) GetCurrency(curr string) (*domain.Currency, *errors.RestErr) {
 
-	res := &domain.Currency{ID: curr}
-	if err := res.Get(); err != nil {
+	obj := &domain.Currency{}
+	res, err := obj.Get(curr)
+	if err != nil {
 		return nil, err
 	}
+	fmt.Println("res in service", res)
 
 	return res, nil
 
@@ -29,8 +33,9 @@ func (cs *currencyService) GetCurrency(curr string) (*domain.Currency, *errors.R
 
 func (cs *currencyService) GetAllCurrency() (*domain.Currencies, *errors.RestErr) {
 
-	res := &domain.Currency{}
-	if err := res.GetAll(); err != nil {
+	obj := &domain.Currencies{}
+	res, err := obj.GetAll()
+	if err != nil {
 		return nil, err
 	}
 
