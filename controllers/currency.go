@@ -41,7 +41,7 @@ func UpdateDB() gin.HandlerFunc {
 		fmt.Println("started updating DB")
 		go services.UpdateDatabase()
 		fmt.Println("statement executed")
-		C.JSON(http.StatusCreated, "it will take time to update the DB")
+		c.JSON(http.StatusCreated, "it will take time to update the DB")
 	}
 
 }
