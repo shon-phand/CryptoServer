@@ -10,9 +10,11 @@ var (
 )
 
 func StartApplication() {
-
+	gin.SetMode(gin.ReleaseMode)
+	r.GET("/currency/", controllers.GetAllCurrency())
 	r.GET("/currency/:symbol", controllers.GetCurrency())
-	r.GET("/currency", controllers.GetAllCurrency())
-
+	r.GET("/internal/currency/UpdateDb", controllers.UpdateDB())
+	//go services.UpdateDatabase()
+	gin.SetMode(gin.ReleaseMode)
 	r.Run(":8080")
 }

@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shon-phand/CryptoServer/services"
@@ -12,15 +13,13 @@ func GetCurrency() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
-		curr := c.Param("symbol")
+		symbol := strings.ToUpper(c.Param("symbol"))
 
-		result, err := services.CurrencyService.GetCurrency(curr)
-
+		curr, err := services.CurrencyService.GetCurrency(symbol)
 		if err != nil {
 			c.JSON(err.Status, err)
 		}
-		fmt.Println("res in controller", result)
-		c.JSON(http.StatusOK, result)
+		c.JSON(http.StatusOK, curr)
 
 	}
 }
@@ -35,4 +34,14 @@ func GetAllCurrency() gin.HandlerFunc {
 		c.JSON(http.StatusOK, res)
 
 	}
+}
+
+func UpdateDB() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		fmt.Println("started updating DB")
+		go services.UpdateDatabase()
+		fmt.Println("statement executed")
+		C.JSON(http.StatusCreated, "it will take time to update the DB")
+	}
+
 }

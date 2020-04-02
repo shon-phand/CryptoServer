@@ -1,8 +1,6 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/shon-phand/CryptoServer/domain"
 	"github.com/shon-phand/CryptoServer/utils/errors"
 )
@@ -25,7 +23,6 @@ func (cs *currencyService) GetCurrency(curr string) (*domain.Currency, *errors.R
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("res in service", res)
 
 	return res, nil
 
