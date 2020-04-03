@@ -1,12 +1,13 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shon-phand/CryptoServer/services"
+	"github.com/shon-phand/CryptoServer/utils/errors"
 )
 
 func GetCurrency() gin.HandlerFunc {
@@ -14,10 +15,17 @@ func GetCurrency() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		symbol := strings.ToUpper(c.Param("symbol"))
+		ok := ValidateSymbol(symbol)
+
+		if !ok {
+			c.JSON(http.StatusBadRequest, errors.StatusBadRequestError("invalid symbol, symbol should conatain letters only"))
+			return
+		}
 
 		curr, err := services.CurrencyService.GetCurrency(symbol)
 		if err != nil {
 			c.JSON(err.Status, err)
+			return
 		}
 		c.JSON(http.StatusOK, curr)
 
@@ -30,6 +38,7 @@ func GetAllCurrency() gin.HandlerFunc {
 		res, err := services.CurrencyService.GetAllCurrency()
 		if err != nil {
 			c.JSON(err.Status, err)
+			return
 		}
 		c.JSON(http.StatusOK, res)
 
@@ -38,10 +47,14 @@ func GetAllCurrency() gin.HandlerFunc {
 
 func UpdateDB() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("started updating DB")
 		go services.UpdateDatabase()
-		fmt.Println("statement executed")
-		c.JSON(http.StatusCreated, "it will take time to update the DB")
+		c.JSON(http.StatusCreated, "Db updation will take 20 seconds max, process will run in background")
 	}
 
+}
+
+func ValidateSymbol(s string) bool {
+	var reg = regexp.MustCompile(`^[A-Z]+$`).MatchString
+	res := reg(s)
+	return res
 }

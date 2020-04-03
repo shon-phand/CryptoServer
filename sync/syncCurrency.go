@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sync"
 
 	"github.com/shon-phand/CryptoServer/domain"
 )
@@ -26,26 +27,81 @@ type Currencies []Crnc
 var AllCurrencies Currencies
 var Response Crnc
 
-func SyncCurrency() Currencies {
+type Job struct {
+	ID     int
+	Symbol domain.Symbol
+}
 
-	type Symbols []domain.Symbol
-	type Tickers domain.Ticker
+type Result struct {
+	job      Job
+	currency Crnc
+}
+type Symbols []domain.Symbol
+type Tickers domain.Ticker
+
+var (
+	symbols Symbols
+	jobs    = make(chan Job, 100)
+	results = make(chan Result, 100)
+)
+
+func SyncCurrency() Currencies {
 
 	rawSymbols, err := http.Get("https://api.hitbtc.com/api/2/public/symbol")
 	if err != nil {
 		fmt.Println("error in downloading the symbols")
 	}
 	defer rawSymbols.Body.Close()
-	var symbols Symbols
+
 	body, _ := ioutil.ReadAll(rawSymbols.Body)
 	err = json.Unmarshal(body, &symbols)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	go allocate()
+	done := make(chan bool)
 
-	for _, v := range symbols {
+	go result(done)
 
-		rawTckr, err := http.Get("https://api.hitbtc.com/api/2/public/ticker/" + v.ID)
+	noOfWorkers := 10
+	createWorkerPool(noOfWorkers)
+	<-done
+
+	return AllCurrencies
+}
+
+func allocate() {
+
+	for i, v := range symbols {
+
+		job := Job{i, v}
+		jobs <- job
+	}
+	close(jobs)
+}
+
+func result(done chan bool) {
+	for res := range results {
+		//	fmt.Println("appending currency", res.currency.ID, "to all currencies")
+		AllCurrencies = append(AllCurrencies, res.currency)
+	}
+	done <- true
+}
+
+func createWorkerPool(noOfWorkers int) {
+	var wg sync.WaitGroup
+	for i := 0; i < noOfWorkers; i++ {
+		wg.Add(1)
+		go worker(&wg)
+	}
+	wg.Wait()
+	close(results)
+}
+
+func worker(wg *sync.WaitGroup) {
+	for job := range jobs {
+
+		rawTckr, err := http.Get("https://api.hitbtc.com/api/2/public/ticker/" + job.Symbol.ID)
 		if err != nil {
 			fmt.Println("error in fetching ticker")
 		}
@@ -58,19 +114,18 @@ func SyncCurrency() Currencies {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		Response.Symbol = v.ID
-		Response.ID = v.BaseCurrency
+		Response.Symbol = job.Symbol.ID
+		Response.ID = job.Symbol.BaseCurrency
 		Response.Ask = ticekrs.Ask
 		Response.Bid = ticekrs.Bid
 		Response.Last = ticekrs.Last
 		Response.Open = ticekrs.Open
 		Response.Low = ticekrs.Low
 		Response.High = ticekrs.High
-		Response.FeeCurrency = v.FeeCurrency
-		AllCurrencies = append(AllCurrencies, Response)
-		fmt.Println("added currency", Response)
-
+		Response.FeeCurrency = job.Symbol.FeeCurrency
+		output := Result{job, Response}
+		results <- output
+		//fmt.Println("added currency", Response)
 	}
-
-	return AllCurrencies
+	wg.Done()
 }

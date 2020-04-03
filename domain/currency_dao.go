@@ -12,6 +12,11 @@ func (cr *Currency) Get(cur string) (*Currency, *errors.RestErr) {
 		return nil, errors.StatusInternalServerError("database error")
 	}
 
+	_, ok := res["id"]
+	if !ok {
+		return nil, errors.StatusNotFoundError("currency not found")
+	}
+
 	Response := Currency{}
 	Response.ID = res["id"]
 	Response.Ask = res["ask"]
@@ -28,9 +33,15 @@ func (cr *Currency) Get(cur string) (*Currency, *errors.RestErr) {
 func (cr *Currencies) GetAll() (*Currencies, *errors.RestErr) {
 
 	hashes, err := redis.Client.Keys("sym:*").Result()
+
 	if err != nil {
 		return nil, errors.StatusInternalServerError("database error")
 	}
+
+	if len(hashes) == 0 {
+		return nil, errors.StatusNotFoundError("no currencies found in the database, please sync all currencies first")
+	}
+
 	result := Currencies{}
 	Response := Currency{}
 	for _, v := range hashes {
