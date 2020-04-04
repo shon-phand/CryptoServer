@@ -13,7 +13,7 @@ import (
 func GetCurrency() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-
+		//time.Sleep(6 * time.Second)
 		symbol := strings.ToUpper(c.Param("symbol"))
 		ok := ValidateSymbol(symbol)
 
@@ -35,6 +35,7 @@ func GetCurrency() gin.HandlerFunc {
 func GetAllCurrency() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
+
 		res, err := services.CurrencyService.GetAllCurrency()
 		if err != nil {
 			c.JSON(err.Status, err)
@@ -47,8 +48,15 @@ func GetAllCurrency() gin.HandlerFunc {
 
 func UpdateDB() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		go services.UpdateDatabase()
-		c.JSON(http.StatusCreated, "Db updation will take 20 seconds max, process will run in background")
+
+		tt, err := services.UpdateDatabase()
+
+		if err != nil {
+			c.JSON(err.Status, err)
+			return
+		}
+		c.JSON(http.StatusCreated, tt)
+
 	}
 
 }

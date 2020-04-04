@@ -41,11 +41,14 @@ type Tickers domain.Ticker
 
 var (
 	symbols Symbols
-	jobs    = make(chan Job, 100)
-	results = make(chan Result, 100)
+	jobs    chan Job
+	results chan Result
 )
 
 func SyncCurrency() Currencies {
+
+	jobs = make(chan Job, 100)
+	results = make(chan Result, 100)
 
 	rawSymbols, err := http.Get("https://api.hitbtc.com/api/2/public/symbol")
 	if err != nil {
