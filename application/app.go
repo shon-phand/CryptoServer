@@ -1,17 +1,29 @@
 package application
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shon-phand/CryptoServer/controllers"
+	"github.com/shon-phand/CryptoServer/services"
 )
 
 var (
 	r = gin.New()
 )
+
+func init() {
+	fmt.Println("updating database, it will take 18 seconds to sync all data")
+	_, err := services.UpdateDatabase()
+	if err != nil {
+		panic("error in synching data")
+	}
+
+	fmt.Println("update complete")
+}
 
 func StartApplication() {
 	//gin.SetMode(gin.ReleaseMode)

@@ -1,10 +1,13 @@
 version: "3"
 services:
   redis:
-    image: shonphand/redis
+    build: 
+        context: ./datasources/redis/
     restart: always
   go-app:
-    image: shonphand/cryptoserver:1.0.0
+    build: .
     restart: always
+    depends_on: 
+      - redis
     ports:
       - "8080:8080"

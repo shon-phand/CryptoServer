@@ -4,7 +4,9 @@ services:
     image: shonphand/redis
     restart: always
   go-app:
-    image: shonphand/cryptoserver:1.0.0
+    image: shonphand/cryptoserver:1.0.1
     restart: always
+    depends_on: 
+      - redis
     ports:
       - "8080:8080"
