@@ -1,0 +1,10 @@
+version: "3"
+services:
+  redis:
+    image: shonphand/redis
+    restart: always
+  go-app:
+    image: shonphand/cryptoserver:1.0.0
+    restart: always
+    ports:
+      - "8080:8080"
