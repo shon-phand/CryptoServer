@@ -2,9 +2,9 @@
 
 endpoints are as below
 
-/currency/:symbol           : to fetch details for specific currency
-/currency/                  : to fetch details for all currencies
-/internal/currency/UpdateDb : to update currencies to latest price and to update the DB with any additional currency
+- /currency/:symbol           : to fetch details for specific currency
+- /currency/                  : to fetch details for all currencies
+- /internal/currency/UpdateDb : to update currencies to latest price and to update the DB with any additional currency
 
 To view complete code please visit : https://github.com/shon-phand/CryptoServer 
 
@@ -22,8 +22,8 @@ services:
       - "8080:8080"
       
    
-# you need to run endpoint /internal/currency/UpdateDb to update DB whenever you started the containers
-# it will take 18 seconds to update the complete DB (908 currencies)
+### you need to run endpoint /internal/currency/UpdateDb to update DB whenever you started the containers
+### it will take 18 seconds to update the complete DB (908 currencies)
 
 
 
