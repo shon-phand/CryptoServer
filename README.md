@@ -41,7 +41,7 @@ To handle the dependancies go mod is used.
 
 
 
-To run a code please use below docker-compose file
+To run a code please use below docker-compose file, you can find the docker file in code or 
 ```sh
 version: "3"
 services:
@@ -51,6 +51,8 @@ services:
   go-app:
     image: shonphand/cryptoserver:1.0.1
     restart: always
+    depends_on: 
+      - redis
     ports:
       - "8080:8080"
       
