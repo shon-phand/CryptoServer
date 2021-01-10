@@ -30,6 +30,7 @@ func StartApplication() {
 	r.Use(gin.Recovery())
 	r.Use(gin.Logger())
 
+	r.GET("/", ShowIndex)
 	r.GET("/currency/", controllers.GetAllCurrency())
 	r.GET("/currency/:symbol", controllers.GetCurrency())
 	r.GET("/internal/currency/UpdateDb", controllers.UpdateDB())
@@ -46,4 +47,12 @@ func StartApplication() {
 	if err := server1.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+
+
+func ShowIndex(c *gin.Context) {
+	c.JSON(200,gin.H {
+		"message":"This is application 2",
+	  })
 }
